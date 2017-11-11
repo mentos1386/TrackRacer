@@ -1,5 +1,5 @@
 <h1 align="center">
-  Sick Game
+  Track Racer
 </h1>
 
 ## Requirements
