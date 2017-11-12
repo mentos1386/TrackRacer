@@ -5,9 +5,13 @@ import './style.css';
 // Some module from npm
 import * as _ from 'lodash';
 
+
 export default class Main {
   constructor() {
     console.log('TTrackracer main class started');
+
+    // Game canvas
+    const canvas = <HTMLCanvasElement>document.getElementById('gameCanvas');
 
     /**
      * Write some logic here

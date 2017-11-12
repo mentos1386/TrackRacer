@@ -1,9 +1,10 @@
-const webpack = require("webpack");
-const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+import * as webpack from 'webpack';
+import * as path from 'path';
+import * as HtmlWebpackPlugin from 'html-webpack-plugin';
+
 const nodeEnv = process.env.NODE_ENV || "development";
 
-var config = {
+const config: webpack.Configuration = {
   devtool: "source-map",
   context: path.resolve("./src"),
   entry: {
@@ -30,6 +31,7 @@ var config = {
         exclude: ["node_modules"],
         use: ["awesome-typescript-loader", "source-map-loader"]
       },
+      { test: /\.(glsl|vs|fs)$/, loader: 'ts-shader-loader' },
       { test: /\.html$/, loader: "html-loader" },
       { test: /\.css$/, loaders: ["style-loader", "css-loader"] },
       { test: /assets(\/|\\)/, loader: 'file-loader?name=assets/[hash].[ext]' },
@@ -51,7 +53,6 @@ var config = {
     }),
     new webpack.optimize.UglifyJsPlugin({
       compress: { warnings: false },
-      output: { comments: false },
       sourceMap: true
     }),
     new webpack.HotModuleReplacementPlugin()
@@ -64,4 +65,4 @@ var config = {
   }
 };
 
-module.exports = config;
+export default config;

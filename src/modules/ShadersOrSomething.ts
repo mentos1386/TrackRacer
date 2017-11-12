@@ -1,3 +1,5 @@
+import someRealShaderGlsl from '../shaders/someRealShader.glsl';
+
 export default class ShadersOrSomething {
 
   constructor() {
@@ -6,6 +8,7 @@ export default class ShadersOrSomething {
 
   private doStuff() {
     console.log('ShadersOrSomehting => Yeey, stuff!');
+    console.log(someRealShaderGlsl);
   }
 
 }
