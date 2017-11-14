@@ -11,7 +11,7 @@ export default class Main {
     console.log('TTrackracer main class started');
 
     // Game canvas
-    const canvas = <HTMLCanvasElement>document.getElementById('gameCanvas');
+    const canvas = <HTMLCanvasElement> document.getElementById('gameCanvas');
 
     /**
      * Write some logic here
