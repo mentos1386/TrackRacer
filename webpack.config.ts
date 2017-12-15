@@ -36,7 +36,7 @@ const config: webpack.Configuration = {
         exclude: ['node_modules'],
         use: ['babel-loader'],
       },
-      { test: /\.(glsl|vs|fs)$/, loader: 'ts-shader-loader' },
+      { test: /\.(glsl|vs|fs)$/, use: 'ts-shader-loader' },
       { test: /\.html$/, loader: 'html-loader' },
       { test: /\.css$/, loaders: ['style-loader', 'css-loader'] },
       { test: /assets(\/|\\)/, loader: 'file-loader?name=assets/[hash].[ext]' },
