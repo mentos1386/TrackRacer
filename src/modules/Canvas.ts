@@ -1,7 +1,7 @@
 import { mat4 } from 'gl-matrix';
-import { createShader, SHADER_TYPE } from '../../utils/shaders';
-import vertexShaderString from '../../shaders/vertexShader.vs';
-import fragmentShaderString from '../../shaders/fragmentShader.fs';
+import { createShader, SHADER_TYPE } from '../utils/shaders';
+import vertexShaderString from '../shaders/vertexShader.vs';
+import fragmentShaderString from '../shaders/fragmentShader.fs';
 
 export default class Canvas {
 
@@ -73,14 +73,33 @@ export default class Canvas {
     // turn on vertex position attribute at specified position
     this.webgl.enableVertexAttribArray(this.shaderProgram.vertexPositionAttribute);
 
+    // store location of aVertexNormal variable defined in shader
+    this.shaderProgram.textureCoordAttribute = this.webgl.getAttribLocation(
+      this.shaderProgram,
+      'aTextureCoord');
+
+    // store location of aTextureCoord variable defined in shader
+    this.webgl.enableVertexAttribArray(this.shaderProgram.textureCoordAttribute);
+
     // store location of uPMatrix variable defined in shader - projection matrix
     this.shaderProgram.pMatrixUniform = this.webgl.getUniformLocation(
       this.shaderProgram,
       'uPMatrix');
+
     // store location of uMVMatrix variable defined in shader - model-view matrix
     this.shaderProgram.mvMatrixUniform = this.webgl.getUniformLocation(
       this.shaderProgram,
       'uMVMatrix');
+
+    // store location of uSampler variable defined in shader
+    this.shaderProgram.samplerUniform = this.webgl.getUniformLocation(
+      this.shaderProgram,
+      'uSampler');
+
+    // store location of uColor variable defined in shader
+    this.shaderProgram.colorUniform = this.webgl.getUniformLocation(
+      this.shaderProgram,
+      'uColor');
   }
 
   private initiateWebgl() {
@@ -91,6 +110,8 @@ export default class Canvas {
     this.webgl.clearDepth(1.0);
     this.webgl.enable(this.webgl.DEPTH_TEST);
     this.webgl.depthFunc(this.webgl.LEQUAL);
+    this.webgl.blendFunc(this.webgl.SRC_ALPHA, this.webgl.ONE);
+    this.webgl.enable(this.webgl.BLEND);
   }
 
   private setPerspective() {
