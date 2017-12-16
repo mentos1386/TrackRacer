@@ -3,7 +3,7 @@ import { Shape } from '../Shape';
 import Canvas from '../../Canvas';
 import { Shader } from '../../Shader';
 
-export class Cube extends Shape {
+export class Pyramid extends Shape {
 
   constructor(
     canvas: Canvas,
@@ -11,64 +11,32 @@ export class Cube extends Shape {
     colors: Float32Array,
     position: vec3,
   ) {
-    const cubeVertexIndices = [
-      0, 1, 2, 0, 2, 3,    // Front face
-      4, 5, 6, 4, 6, 7,    // Back face
-      8, 9, 10, 8, 10, 11,  // Top face
-      12, 13, 14, 12, 14, 15, // Bottom face
-      16, 17, 18, 16, 18, 19, // Right face
-      20, 21, 22, 20, 22, 23,  // Left face
-    ];
-
-    const cubeVertices = [
+    const pyramidVertices = [
       // Front face
+      0.0, 1.0, 0.0,
       -1.0, -1.0, 1.0,
       1.0, -1.0, 1.0,
-      1.0, 1.0, 1.0,
-      -1.0, 1.0, 1.0,
-      // Back face
-      -1.0, -1.0, -1.0,
-      -1.0, 1.0, -1.0,
-      1.0, 1.0, -1.0,
-      1.0, -1.0, -1.0,
-      // Top face
-      -1.0, 1.0, -1.0,
-      -1.0, 1.0, 1.0,
-      1.0, 1.0, 1.0,
-      1.0, 1.0, -1.0,
-      // Bottom face
-      -1.0, -1.0, -1.0,
-      1.0, -1.0, -1.0,
-      1.0, -1.0, 1.0,
-      -1.0, -1.0, 1.0,
       // Right face
-      1.0, -1.0, -1.0,
-      1.0, 1.0, -1.0,
-      1.0, 1.0, 1.0,
+      0.0, 1.0, 0.0,
       1.0, -1.0, 1.0,
+      1.0, -1.0, -1.0,
+      // Back face
+      0.0, 1.0, 0.0,
+      1.0, -1.0, -1.0,
+      -1.0, -1.0, -1.0,
       // Left face
+      0.0, 1.0, 0.0,
       -1.0, -1.0, -1.0,
       -1.0, -1.0, 1.0,
-      -1.0, 1.0, 1.0,
-      -1.0, 1.0, -1.0,
     ];
 
-    super(
-      canvas,
-      shader,
-      new Float32Array(cubeVertices),
-      colors,
-      position,
-      new Uint16Array(cubeVertexIndices));
+    super(canvas, shader, new Float32Array(pyramidVertices), colors, position);
 
     this.vertexPositionBuffer.itemSize = 3;
-    this.vertexPositionBuffer.numItems = 24;
+    this.vertexPositionBuffer.numItems = 12;
 
     this.vertexColorBuffer.itemSize = 4;
-    this.vertexColorBuffer.numItems = 24;
-
-    this.vertexIndexBuffer.itemSize = 1;
-    this.vertexIndexBuffer.numItems = 36;
+    this.vertexColorBuffer.numItems = 3;
   }
 
   draw() {
@@ -97,13 +65,11 @@ export class Cube extends Shape {
       0,
       0);
 
-    this.canvas.webgl.bindBuffer(this.canvas.webgl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
-    // Draw the cube.
+    // Draw the pyramid.
     this.shader.setMatrixUniforms(this.modelViewMatrix);
-    this.canvas.webgl.drawElements(
+    this.canvas.webgl.drawArrays(
       this.canvas.webgl.TRIANGLES,
-      this.vertexIndexBuffer.numItems,
-      this.canvas.webgl.UNSIGNED_SHORT,
-      0);
+      0,
+      this.vertexPositionBuffer.numItems);
   }
 }
