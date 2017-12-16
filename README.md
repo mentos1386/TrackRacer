@@ -17,10 +17,10 @@
 
 ## Plan
 
- [ ] Raven svet
- [ ] kamera
- [ ] premikaj kamero
- [ ] škatla
- [ ] 3d svet
- [ ] texture sveta
- [ ] fizika
+ * [ ] Raven svet
+ * [ ] kamera
+ * [ ] premikaj kamero
+ * [ ] škatla
+ * [ ] 3d svet
+ * [ ] texture sveta
+ * [ ] fizika
