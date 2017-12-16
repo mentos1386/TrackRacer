@@ -3,9 +3,11 @@ import 'babel-polyfill';
 import './style.css';
 
 import * as StarUrl from '../assets/star.gif';
+import fragmentShader from './shaders/fragmentShader.fs';
+import vertexShader from './shaders/vertexShader.vs';
 
 import { Cube } from './modules/shapes/3d/Cube';
-import Texture from './modules/Texture';
+import { Shader } from './modules/Shader';
 
 export default class Main {
   private canvas: Canvas;
@@ -19,35 +21,71 @@ export default class Main {
   }
 
   private async init() {
-
-    const textureCoordinates = new Float32Array([
-      0.0, 0.0,
-      1.0, 0.0,
-      0.0, 1.0,
-      1.0, 1.0,
-    ]);
-    const cubeTexture = new Texture(this.canvas, StarUrl, textureCoordinates);
-    await cubeTexture.load();
+    const shader = new Shader(this.canvas, vertexShader, fragmentShader);
 
     const cubeVertices = new Float32Array([
-      -1.0, -1.0, 0.0,
-      1.0, -1.0, 0.0,
-      -1.0, 1.0, 0.0,
-      1.0, 1.0, 0.0,
-    ]);
-    this.cube = new Cube(this.canvas, cubeVertices, [-1.5, 0.0, -7.0]);
-    this.cube.setTexture(cubeTexture);
-    this.cube.setColor(0, 125, 255);
+      // Front face
+      -1.0, -1.0, 1.0,
+      1.0, -1.0, 1.0,
+      1.0, 1.0, 1.0,
+      -1.0, 1.0, 1.0,
 
-    window.requestAnimationFrame(() => this.draw());
+      // Back face
+      -1.0, -1.0, -1.0,
+      -1.0, 1.0, -1.0,
+      1.0, 1.0, -1.0,
+      1.0, -1.0, -1.0,
+
+      // Top face
+      -1.0, 1.0, -1.0,
+      -1.0, 1.0, 1.0,
+      1.0, 1.0, 1.0,
+      1.0, 1.0, -1.0,
+
+      // Bottom face
+      -1.0, -1.0, -1.0,
+      1.0, -1.0, -1.0,
+      1.0, -1.0, 1.0,
+      -1.0, -1.0, 1.0,
+
+      // Right face
+      1.0, -1.0, -1.0,
+      1.0, 1.0, -1.0,
+      1.0, 1.0, 1.0,
+      1.0, -1.0, 1.0,
+
+      // Left face
+      -1.0, -1.0, -1.0,
+      -1.0, -1.0, 1.0,
+      -1.0, 1.0, 1.0,
+      -1.0, 1.0, -1.0,
+    ]);
+
+    const cubeColor = new Float32Array([
+      [1.0, 0.0, 0.0, 1.0], // Front face
+      [1.0, 1.0, 0.0, 1.0], // Back face
+      [0.0, 1.0, 0.0, 1.0], // Top face
+      [1.0, 0.5, 0.5, 1.0], // Bottom face
+      [1.0, 0.0, 1.0, 1.0], // Right face
+      [0.0, 0.0, 1.0, 1.0],  // Left face
+    ].reduce((all, face) => [...all, ...face, ...face, ...face, ...face], []));
+
+    console.log(cubeColor);
+
+    this.cube = new Cube(this.canvas, shader, cubeVertices, cubeColor);
+
+    window.requestAnimationFrame(elapsed => this.draw(elapsed));
   }
 
-  private draw() {
+  private draw(elapsed: number) {
     console.log('Drawing');
     this.canvas.clear();
+    const rotation = this.cube.rotation;
+
+    this.cube.rotate(rotation + (elapsed) / 1000);
     this.cube.draw();
 
-    window.requestAnimationFrame(() => this.draw());
+    window.requestAnimationFrame(elapsed => this.draw(elapsed));
   }
 }
 

@@ -1,15 +1,17 @@
 import Canvas from './Canvas';
+import { FragmentShader } from './shaders/FragmentShader';
 
 export default class Texture {
   private texture: WebGLTexture;
   private image: HTMLImageElement;
   private coordinatesBuffer: WebGLBuffer;
-  private itemSize: 2;
+  private itemSize = 2;
 
   constructor(
     private canvas: Canvas,
     private src: string,
     private coordinates: Float32Array,
+    private fragmentShader: FragmentShader,
   ) {
     this.texture = this.canvas.webgl.createTexture();
     this.image = new Image();
@@ -56,20 +58,13 @@ export default class Texture {
   }
 
   public draw() {
+    this.fragmentShader.use();
+
     // Activate texture
     this.canvas.webgl.activeTexture(this.canvas.webgl.TEXTURE0);
-    // Bind texture
-    this.canvas.webgl.bindTexture(this.canvas.webgl.TEXTURE_2D, this.texture);
-    this.canvas.webgl.uniform1i(this.canvas.shaderProgram.samplerUniform, 0);
 
-    this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.coordinatesBuffer);
-    this.canvas.webgl.vertexAttribPointer(
-      this.canvas.shaderProgram.textureCoordAttribute,
-      3,
-      this.canvas.webgl.FLOAT,
-      false,
-      0,
-      0);
+    this.fragmentShader.bindTexture(this.texture);
+    this.fragmentShader.bindBuffer(this.coordinatesBuffer, this.itemSize);
   }
 
   /**

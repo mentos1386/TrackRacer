@@ -1,31 +1,52 @@
 import Canvas from '../Canvas';
-import Texture from '../Texture';
+import { Shader } from '../Shader';
+import { mat4 } from 'gl-matrix';
 
 export abstract class Shape {
-  protected verticesBuffer: WebGLBuffer;
-  protected texture: Texture;
-  protected color = { r: 0, g: 0, b: 0 };
+  public rotation = 0;
+  protected vertexPositionBuffer: WebGLBufferD;
+  protected vertexColorBuffer: WebGLBufferD;
+  protected vertexIndexBuffer: WebGLBufferD;
+  protected modelViewMatrix: mat4;
 
   constructor(
     protected canvas: Canvas,
+    protected shader: Shader,
     protected vertices: Float32Array,
-    protected position: number[],
+    protected colors: Float32Array,
+    protected indices: Uint16Array,
   ) {
-    this.verticesBuffer = this.canvas.webgl.createBuffer();
-    this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.verticesBuffer);
+    this.vertexPositionBuffer = this.canvas.webgl.createBuffer();
+    this.vertexColorBuffer = this.canvas.webgl.createBuffer();
+    this.vertexIndexBuffer = this.canvas.webgl.createBuffer();
+
+    this.modelViewMatrix = mat4.create();
+    mat4.identity(this.modelViewMatrix);
+
+    // Vertex position
+    this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexPositionBuffer);
     this.canvas.webgl.bufferData(
       this.canvas.webgl.ARRAY_BUFFER,
-      vertices,
+      this.vertices,
+      this.canvas.webgl.STATIC_DRAW);
+
+    // Vertex color
+    this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexColorBuffer);
+    this.canvas.webgl.bufferData(
+      this.canvas.webgl.ARRAY_BUFFER,
+      this.colors,
+      this.canvas.webgl.STATIC_DRAW);
+
+    // Vertex indices
+    this.canvas.webgl.bindBuffer(this.canvas.webgl.ELEMENT_ARRAY_BUFFER, this.vertexIndexBuffer);
+    this.canvas.webgl.bufferData(
+      this.canvas.webgl.ELEMENT_ARRAY_BUFFER,
+      this.indices,
       this.canvas.webgl.STATIC_DRAW);
   }
 
-  public setColor(r: number, g: number, b: number) {
-    this.color.r = r;
-    this.color.g = g;
-    this.color.b = b;
+  public setColor(colors: number[][]) {
+    this.colors = new Float32Array(colors.reduce((all, face) => [...all, ...face], []));
   }
 
-  public setTexture(texture: Texture) {
-    this.texture = texture;
-  }
 }
