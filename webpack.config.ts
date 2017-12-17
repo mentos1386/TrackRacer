@@ -36,6 +36,7 @@ const config: webpack.Configuration = {
         exclude: ['node_modules'],
         use: ['babel-loader'],
       },
+      { test: /\.obj$/, loader: 'webpack-obj-loader' },
       { test: /\.(glsl|vs|fs)$/, use: 'ts-shader-loader' },
       { test: /\.html$/, loader: 'html-loader' },
       { test: /\.css$/, loaders: ['style-loader', 'css-loader'] },

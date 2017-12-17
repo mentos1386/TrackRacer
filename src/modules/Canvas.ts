@@ -6,6 +6,8 @@ export default class Canvas {
   public canvas: HTMLCanvasElement;
   public webgl: WebGLRenderingContext;
   public projectionMatrix: mat4;
+  public modelViewMatrix: mat4;
+  private modelViewMatrixes: mat4[];
 
   constructor(id: string) {
     this.CANVAS_ID = id;
@@ -14,7 +16,21 @@ export default class Canvas {
     this.canvas.height = window.innerHeight;
 
     this.initiateWebgl();
-    this.setPerspective();
+    this.setProjection();
+  }
+
+  /**
+   * Add new identity to stack
+   */
+  mvPush() {
+    this.modelViewMatrixes.push(this.modelViewMatrix);
+  }
+
+  /**
+   * Remove top matrix from stack
+   */
+  mvPop() {
+    this.modelViewMatrix = this.modelViewMatrixes.pop();
   }
 
   /**
@@ -22,7 +38,8 @@ export default class Canvas {
    */
   public clear(): void {
     this.webgl.clear(this.webgl.COLOR_BUFFER_BIT | this.webgl.DEPTH_BUFFER_BIT);
-    this.setPerspective();
+    this.setProjection();
+    this.setModelView();
   }
 
   private initiateWebgl() {
@@ -37,8 +54,13 @@ export default class Canvas {
     this.webgl.enable(this.webgl.BLEND);
   }
 
-  private setPerspective() {
+  private setProjection() {
     this.projectionMatrix = mat4.create();
-    mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 100);
+    mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 1000);
+  }
+
+  private setModelView() {
+    this.modelViewMatrix = mat4.identity(mat4.create());
+    this.modelViewMatrixes = [];
   }
 }
