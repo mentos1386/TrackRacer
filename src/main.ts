@@ -11,6 +11,7 @@ import { Shader } from './modules/Shader';
 import { vec3 } from 'gl-matrix';
 import { MeshShape } from './modules/MeshShape';
 import { Camera } from './modules/Camera';
+import { Layout } from 'webgl-obj-loader';
 
 export default class Main {
   private canvas: Canvas;
@@ -32,7 +33,25 @@ export default class Main {
   }
 
   private async init() {
-    const shader = new Shader(this.canvas, vertexShader, fragmentShader);
+    const shader = new Shader(
+      this.canvas,
+      vertexShader,
+      fragmentShader,
+      new Layout(
+        Layout.POSITION,
+        Layout.NORMAL,
+        Layout.UV,
+        Layout.DIFFUSE,
+        Layout.SPECULAR,
+        Layout.SPECULAR_EXPONENT),
+      {
+        aVertexPosition: Layout.POSITION,
+        aVertexNormal: Layout.NORMAL,
+        aTextureCoord: Layout.UV,
+        aDiffuse: Layout.DIFFUSE,
+        aSpecular: Layout.SPECULAR,
+        aSpecularExponent: Layout.SPECULAR_EXPONENT,
+      });
 
     this.shapes.push(new MeshShape(this.canvas, shader, vec3.fromValues(0, 0, -2), exampleObj));
 

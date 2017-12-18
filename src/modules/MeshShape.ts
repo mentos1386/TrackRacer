@@ -1,6 +1,7 @@
 import Canvas from './Canvas';
 import { Shader } from './Shader';
 import { mat4, vec3 } from 'gl-matrix';
+import { Layout } from 'webgl-obj-loader';
 
 export class MeshShape {
   protected normalBuffer: WebGLBufferD;
@@ -51,19 +52,23 @@ export class MeshShape {
     /**
      * Vertex
      */
+    const vertexData = this.shader.makeVertexBufferData(this.mesh);
+    this.vertexBuffer.numItems = vertexData.numItems;
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
     this.canvas.webgl.bufferData(
       this.canvas.webgl.ARRAY_BUFFER,
-      new Float32Array(mesh.vertices),
+      vertexData,
       this.canvas.webgl.STATIC_DRAW);
 
     /**
      * Index
      */
+    const indexData = this.shader.makeIndexBufferData(this.mesh);
+    this.indexBuffer.numItems = indexData.numItems;
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.canvas.webgl.bufferData(
       this.canvas.webgl.ELEMENT_ARRAY_BUFFER,
-      new Uint16Array(mesh.indices),
+      indexData,
       this.canvas.webgl.STATIC_DRAW);
   }
 
@@ -72,55 +77,9 @@ export class MeshShape {
 
     this.canvas.mvPush();
     mat4.translate(this.canvas.modelViewMatrix, this.canvas.modelViewMatrix, this.position);
-    console.log(this.canvas.modelViewMatrix);
 
-    // it's possible that the mesh doesn't contain
-    // any texture coordinates (e.g. suzanne.obj in the development branch).
-    // in this case, the texture vertexAttribArray will need to be disabled
-    // before the call to drawElements
-    if (this.shader.variables.textureCoordAttribute === -1) {
-      //  console.warn('Shader doesn\'t support textures?');
-    } else if (!this.textureBuffer.numItems) {
-      this.canvas.webgl.disableVertexAttribArray(this.shader.variables.textureCoordAttribute);
-    } else {
-      // if the texture vertexAttribArray has been previously
-      // disabled, then it needs to be re-enabled
-      this.canvas.webgl.enableVertexAttribArray(this.shader.variables.textureCoordAttribute);
-      this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.textureBuffer);
-      this.canvas.webgl.vertexAttribPointer(
-        this.shader.variables.textureCoordAttribute,
-        this.textureBuffer.itemSize,
-        this.canvas.webgl.FLOAT,
-        false,
-        0,
-        0);
-    }
-
-    /**
-     * Normal
-     */
-    if (this.shader.variables.vertexNormalAttribute !== -1) {
-      this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.normalBuffer);
-      this.canvas.webgl.vertexAttribPointer(
-        this.shader.variables.vertexNormalAttribute,
-        this.normalBuffer.itemSize,
-        this.canvas.webgl.FLOAT,
-        false,
-        0,
-        0);
-    }
-
-    /**
-     * Vertex
-     */
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
-    this.canvas.webgl.vertexAttribPointer(
-      this.shader.variables.vertexPositionAttribute,
-      this.vertexBuffer.itemSize,
-      this.canvas.webgl.FLOAT,
-      false,
-      0,
-      0);
+    this.shader.setVariables();
 
     /**
      * Index

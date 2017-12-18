@@ -4,14 +4,10 @@ import { mat3, mat4 } from 'gl-matrix';
 import { Layout } from 'webgl-obj-loader';
 
 export class Shader {
-  public variables: {
-    vertexPositionAttribute?: number,
-    textureCoordAttribute?: number,
-    vertexNormalAttribute?: number,
-    mvMatrixUniform?: WebGLUniformLocation,
-    pMatrixUniform?: WebGLUniformLocation,
-    nMatrixUniform?: WebGLUniformLocation,
-  } = {};
+  private variables: { [key: string]: number } = {};
+  private mvMatrixUniform?: WebGLUniformLocation;
+  private pMatrixUniform?: WebGLUniformLocation;
+  private nMatrixUniform?: WebGLUniformLocation;
   private program: WebGLProgram;
   private vertexShader: WebGLShader;
   private fragmentShader: WebGLShader;
@@ -20,6 +16,8 @@ export class Shader {
     private canvas: Canvas,
     private vertexShaderString: string,
     private fragmentShaderString: string,
+    private layout: Layout,
+    private attributes: { [name: string]: Attribute },
   ) {
     this.vertexShader = createShader(
       this.canvas.webgl,
@@ -52,12 +50,12 @@ export class Shader {
    */
   public setMatrixUniforms() {
     this.canvas.webgl.uniformMatrix4fv(
-      this.variables.pMatrixUniform,
+      this.pMatrixUniform,
       false,
       this.canvas.projectionMatrix);
 
     this.canvas.webgl.uniformMatrix4fv(
-      this.variables.mvMatrixUniform,
+      this.mvMatrixUniform,
       false,
       this.canvas.modelViewMatrix);
 
@@ -65,59 +63,91 @@ export class Shader {
     mat3.normalFromMat4(normalMatrix, this.canvas.modelViewMatrix);
 
     this.canvas.webgl.uniformMatrix3fv(
-      this.variables.nMatrixUniform,
+      this.nMatrixUniform,
       false,
       normalMatrix);
   }
 
+  /**
+   * Make WebGL use this shader
+   */
   public use() {
     this.canvas.webgl.useProgram(this.program);
   }
 
+  /**
+   * Create vertex buffer data
+   * @param {Mesh} mesh
+   * @returns {ArrayBufferD}
+   */
+  public makeVertexBufferData(mesh: Mesh): ArrayBufferD {
+    return mesh.makeBufferData(this.layout);
+  }
+
+  /**
+   * Create index buffer data
+   * @param {Mesh} mesh
+   * @returns {ArrayBufferD}
+   */
+  public makeIndexBufferData(mesh: Mesh): ArrayBufferD {
+    return mesh.makeIndexBufferData(this.layout);
+  }
+
+  /**
+   * Set variables from mesh
+   */
+  public setVariables() {
+    for (const attributeName in this.attributes) {
+      if (!this.attributes.hasOwnProperty(attributeName)) continue;
+      if (this.variables[attributeName] === -1) continue;
+
+      const attribute = this.layout[this.attributes[attributeName].key];
+
+      this.canvas.webgl.vertexAttribPointer(
+        this.variables[attributeName],
+        attribute.size,
+        this.canvas.webgl[attribute.type],
+        attribute.normalized,
+        attribute.stride,
+        attribute.offset,
+      );
+    }
+  }
+
+  /**
+   * Go through all variables and initialize them
+   */
   private initVariables() {
+    for (const attributeName in this.attributes) {
+      if (!this.attributes.hasOwnProperty(attributeName)) continue;
 
-    /**
-     * vertexPositionAttribute
-     */
-    this.variables.vertexPositionAttribute = this.canvas.webgl.getAttribLocation(
-      this.program,
-      'aVertexPosition');
-    this.canvas.webgl.enableVertexAttribArray(this.variables.vertexPositionAttribute);
-
-    /**
-     * vertexNormalAttribute
-     */
-    this.variables.vertexNormalAttribute = this.canvas.webgl.getAttribLocation(
-      this.program,
-      'aVertexNormal');
-    if (this.variables.vertexNormalAttribute !== -1)
-      this.canvas.webgl.enableVertexAttribArray(this.variables.vertexNormalAttribute);
-
-    /**
-     * textureCoordAttribute
-     */
-    this.variables.textureCoordAttribute = this.canvas.webgl.getAttribLocation(
-      this.program,
-      'aTextureCoord');
-    if (this.variables.textureCoordAttribute !== -1)
-      this.canvas.webgl.enableVertexAttribArray(this.variables.textureCoordAttribute);
-
+      this.variables[attributeName] = this.canvas.webgl.getAttribLocation(
+        this.program,
+        attributeName);
+      if (this.variables[attributeName] !== -1)
+        this.canvas.webgl.enableVertexAttribArray(this.variables[attributeName]);
+      else
+        console.warn(
+          `Shader attribute ${attributeName} not found in shader.`
+          + ` Is it undeclared or unused in the shader code?`,
+        );
+    }
   }
 
   private initUniformVariables() {
 
-    // store location of uPMatrix variable defined in shader - projection matrix 
-    this.variables.pMatrixUniform = this.canvas.webgl.getUniformLocation(
+    // store location of uPMatrix variable defined in shader - projection matrix
+    this.pMatrixUniform = this.canvas.webgl.getUniformLocation(
       this.program,
       'uPMatrix');
 
-    // store location of uMVMatrix variable defined in shader - model-view matrix 
-    this.variables.mvMatrixUniform = this.canvas.webgl.getUniformLocation(
+    // store location of uMVMatrix variable defined in shader - model-view matrix
+    this.mvMatrixUniform = this.canvas.webgl.getUniformLocation(
       this.program,
       'uMVMatrix');
 
     // store location of uNVMatrix variable defined in shader - normal ? matrix
-    this.variables.nMatrixUniform = this.canvas.webgl.getUniformLocation(
+    this.nMatrixUniform = this.canvas.webgl.getUniformLocation(
       this.program,
       'uNMatrix');
   }
