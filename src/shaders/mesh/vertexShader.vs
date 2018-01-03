@@ -17,7 +17,7 @@ varying vec3 vDiffuse;
 varying vec3 vSpecular;
 varying float vSpecularExponent;
 
-void main(void) {
+void main() {
     vDiffuse = aDiffuse;
     vSpecular = aSpecular;
     vSpecularExponent = aSpecularExponent;

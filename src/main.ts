@@ -2,21 +2,24 @@ import Canvas from './modules/Canvas';
 import 'babel-polyfill';
 import './style.css';
 
-import fragmentShader from './shaders/fragmentShader.fs';
-import vertexShader from './shaders/vertexShader.vs';
+import fragmentShader from './shaders/mesh/fragmentShader.fs';
+import vertexShader from './shaders/mesh/vertexShader.vs';
 
 import exampleObj from './objects/example.obj';
+import cubeObj from './objects/cube.obj';
+import worldObj from './objects/world.obj';
 
 import { Shader } from './modules/Shader';
 import { vec3 } from 'gl-matrix';
 import { MeshShape } from './modules/MeshShape';
-import { Camera } from './modules/Camera';
+import { Car } from './modules/Car';
 import { Layout } from 'webgl-obj-loader';
 
 export default class Main {
   private canvas: Canvas;
-  private camera: Camera;
+  private car: Car;
   private shapes: MeshShape[] = [];
+  private world: MeshShape;
   private keyDown: string;
 
   constructor() {
@@ -24,7 +27,6 @@ export default class Main {
 
     // Create canvas
     this.canvas = new Canvas('gameCanvas');
-    this.camera = new Camera(this.canvas);
 
     window.addEventListener('keydown', ({ key }) => this.keyDown = key);
     window.addEventListener('keyup', () => this.keyDown = null);
@@ -53,7 +55,13 @@ export default class Main {
         aSpecularExponent: Layout.SPECULAR_EXPONENT,
       });
 
-    this.shapes.push(new MeshShape(this.canvas, shader, vec3.fromValues(0, 0, -2), exampleObj));
+    this.shapes.push(new MeshShape(this.canvas, shader, vec3.fromValues(0, 1, -2), exampleObj));
+    this.shapes.push(new MeshShape(this.canvas, shader, vec3.fromValues(2, 1, -2), exampleObj));
+
+    this.world = new MeshShape(this.canvas, shader, vec3.fromValues(0, 0, 0), worldObj);
+    this.car = new Car(
+      this.canvas,
+      new MeshShape(this.canvas, shader, vec3.fromValues(-2, 1, -2), cubeObj));
 
     window.requestAnimationFrame(elapsed => this.draw(elapsed));
   }
@@ -61,10 +69,13 @@ export default class Main {
   private draw(elapsed: number) {
     console.log('Drawing');
     this.canvas.clear();
-    this.camera.onKey(this.keyDown, elapsed);
+
+    this.car.onKey(this.keyDown, elapsed);
+
+    this.world.render();
 
     this.shapes.forEach((shape) => {
-      // shape.rotate(elapsed / 1000);
+      shape.rotate(elapsed / 1000);
       shape.render();
     });
 

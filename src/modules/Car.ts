@@ -1,16 +1,16 @@
 import Canvas from './Canvas';
 import { degToRad } from '../utils/math';
 import { mat4, vec3 } from 'gl-matrix';
+import { MeshShape } from './MeshShape';
 
-export class Camera {
-  private position = { x: 0, y: 0.3, z: 3.7 };
+export class Car {
+  private position = { x: 0, y: 2.5, z: 3.7 };
   private pitchFactor = 1;
   private direction = 0;
   private speed = 0.00001;
   private pitch = 0;
-  private sensitivity = 10;
 
-  constructor(private canvas: Canvas) {
+  constructor(private canvas: Canvas, private mesh: MeshShape) {
   }
 
   get positionVector(): vec3 {
@@ -58,7 +58,7 @@ export class Camera {
     this.position.z += z;
 
     this.moveCamera();
-    console.log(`[CAMERA] [${key}] x:${this.position.x} y:${this.position.y} z:${this.position.z}`);
+    console.log(`[CAR] [${key}] x:${this.position.x} y:${this.position.y} z:${this.position.z}`);
   }
 
   moveCamera() {
@@ -77,7 +77,11 @@ export class Camera {
       this.canvas.modelViewMatrix,
       this.inversePositionVector);
 
-    console.log(`[CAMERA] [MVm]`, this.canvas.modelViewMatrix);
+    console.log('[CAR] [ipv]', this.inversePositionVector);
+    this.mesh.move(this.inversePositionVector);
+    this.mesh.render();
+
+    console.log(`[CAR] [MVm]`, this.canvas.modelViewMatrix);
   }
 
 }

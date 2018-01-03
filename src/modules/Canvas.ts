@@ -23,7 +23,7 @@ export default class Canvas {
    * Add new identity to stack
    */
   mvPush() {
-    this.modelViewMatrixes.push(this.modelViewMatrix);
+    this.modelViewMatrixes.push(mat4.copy(mat4.create(), this.modelViewMatrix));
   }
 
   /**
@@ -50,8 +50,9 @@ export default class Canvas {
     this.webgl.clearDepth(1.0);
     this.webgl.enable(this.webgl.DEPTH_TEST);
     this.webgl.depthFunc(this.webgl.LEQUAL);
-    this.webgl.blendFunc(this.webgl.SRC_ALPHA, this.webgl.ONE);
-    this.webgl.enable(this.webgl.BLEND);
+    // This is for transparency like effect
+    // this.webgl.blendFunc(this.webgl.ONE, this.webgl.ONE);
+    // this.webgl.enable(this.webgl.BLEND);
   }
 
   private setProjection() {

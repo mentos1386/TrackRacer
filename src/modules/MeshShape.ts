@@ -2,12 +2,14 @@ import Canvas from './Canvas';
 import { Shader } from './Shader';
 import { mat4, vec3 } from 'gl-matrix';
 import { Layout } from 'webgl-obj-loader';
+import Shape from './Shape.interface';
 
-export class MeshShape {
+export class MeshShape implements Shape {
   protected normalBuffer: WebGLBufferD;
   protected textureBuffer: WebGLBufferD;
   protected indexBuffer: WebGLBufferD;
   protected vertexBuffer: WebGLBufferD;
+  protected rotation = 0;
 
   constructor(
     protected canvas: Canvas,
@@ -55,6 +57,7 @@ export class MeshShape {
     const vertexData = this.shader.makeVertexBufferData(this.mesh);
     this.vertexBuffer.numItems = vertexData.numItems;
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
+    console.log(vertexData);
     this.canvas.webgl.bufferData(
       this.canvas.webgl.ARRAY_BUFFER,
       vertexData,
@@ -72,10 +75,15 @@ export class MeshShape {
       this.canvas.webgl.STATIC_DRAW);
   }
 
+  move(vector: vec3): void {
+    this.position = vector;
+  }
+
   render() {
     this.shader.use();
 
     this.canvas.mvPush();
+    mat4.rotate(this.canvas.modelViewMatrix, this.canvas.modelViewMatrix, this.rotation, [0, 1, 0]);
     mat4.translate(this.canvas.modelViewMatrix, this.canvas.modelViewMatrix, this.position);
 
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
@@ -93,6 +101,10 @@ export class MeshShape {
       0);
 
     this.canvas.mvPop();
+  }
+
+  rotate(degree: number) {
+    this.rotation = degree;
   }
 
 }
