@@ -4,6 +4,7 @@ attribute vec2 aTextureCoord;
 attribute vec3 aDiffuse;
 attribute vec3 aSpecular;
 attribute float aSpecularExponent;
+attribute vec3 aColor;
 
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;

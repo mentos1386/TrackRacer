@@ -14,12 +14,13 @@ import { vec3 } from 'gl-matrix';
 import { MeshShape } from './modules/MeshShape';
 import { Car } from './modules/Car';
 import { Layout } from 'webgl-obj-loader';
+import { Body, Vec3, Plane, Quaternion } from 'cannon';
 
 export default class Main {
   private canvas: Canvas;
   private car: Car;
   private shapes: MeshShape[] = [];
-  private world: MeshShape;
+  private ground: MeshShape;
   private keyDown: string;
 
   constructor() {
@@ -55,13 +56,31 @@ export default class Main {
         aSpecularExponent: Layout.SPECULAR_EXPONENT,
       });
 
-    this.shapes.push(new MeshShape(this.canvas, shader, vec3.fromValues(0, 1, -2), exampleObj));
-    this.shapes.push(new MeshShape(this.canvas, shader, vec3.fromValues(2, 1, -2), exampleObj));
+    const exampleBody1 = new Body({
+      mass: 1,
+      position: new Vec3(0, 3, 0),
+    });
+    const exampleBody2 = new Body({
+      mass: 0,
+      position: new Vec3(2, 3, 0),
+    });
+    this.shapes.push(new MeshShape(this.canvas, shader, exampleBody1, exampleObj));
+    this.shapes.push(new MeshShape(this.canvas, shader, exampleBody2, exampleObj));
 
-    this.world = new MeshShape(this.canvas, shader, vec3.fromValues(0, 0, 0), worldObj);
+    const groundBody = new Body({
+      mass: 0,
+    });
+    groundBody.addShape(new Plane());
+    groundBody.quaternion.setFromAxisAngle(new Vec3(1, 0, 0), Math.PI / 2);
+    this.ground = new MeshShape(this.canvas, shader, groundBody, worldObj);
+
+    const carBody = new Body({
+      mass: 1,
+      position: new Vec3(2, 20, 0),
+    });
     this.car = new Car(
       this.canvas,
-      new MeshShape(this.canvas, shader, vec3.fromValues(-2, 1, -2), cubeObj));
+      new MeshShape(this.canvas, shader, carBody, cubeObj));
 
     window.requestAnimationFrame(elapsed => this.draw(elapsed));
   }
@@ -69,10 +88,11 @@ export default class Main {
   private draw(elapsed: number) {
     console.log('Drawing');
     this.canvas.clear();
+    this.canvas.world.step(1 / 60, elapsed / 1000, 3);
 
     this.car.onKey(this.keyDown, elapsed);
 
-    this.world.render();
+    this.ground.render();
 
     this.shapes.forEach((shape) => {
       shape.rotate(elapsed / 1000);

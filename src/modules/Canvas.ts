@@ -1,8 +1,10 @@
 import { mat4 } from 'gl-matrix';
+import { World, NaiveBroadphase } from 'cannon';
+import { degToRad } from '../utils/math';
 
 export default class Canvas {
-
   public readonly CANVAS_ID: string;
+  public world: World;
   public canvas: HTMLCanvasElement;
   public webgl: WebGLRenderingContext;
   public projectionMatrix: mat4;
@@ -15,6 +17,7 @@ export default class Canvas {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
 
+    this.initWorld();
     this.initiateWebgl();
     this.setProjection();
   }
@@ -42,6 +45,18 @@ export default class Canvas {
     this.setModelView();
   }
 
+  /**
+   * Prepare world
+   */
+  private initWorld() {
+    this.world = new World();
+    this.world.gravity.set(0, -9.82, 0);
+    this.world.broadphase = new NaiveBroadphase();
+  }
+
+  /**
+   * Prepare webgl
+   */
   private initiateWebgl() {
     this.webgl = this.canvas.getContext('webgl');
 
@@ -55,11 +70,17 @@ export default class Canvas {
     // this.webgl.enable(this.webgl.BLEND);
   }
 
+  /**
+   * Set projection matrix
+   */
   private setProjection() {
     this.projectionMatrix = mat4.create();
     mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 1000);
   }
 
+  /**
+   * Set model view matrix
+   */
   private setModelView() {
     this.modelViewMatrix = mat4.identity(mat4.create());
     this.modelViewMatrixes = [];

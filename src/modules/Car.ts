@@ -4,7 +4,7 @@ import { mat4, vec3 } from 'gl-matrix';
 import { MeshShape } from './MeshShape';
 
 export class Car {
-  private position = { x: 0, y: 2.5, z: 3.7 };
+  private position = { x: 0, y: 2.5, z: 10.7 };
   private pitchFactor = 1;
   private direction = 0;
   private speed = 0.00001;
@@ -78,7 +78,8 @@ export class Car {
       this.inversePositionVector);
 
     console.log('[CAR] [ipv]', this.inversePositionVector);
-    this.mesh.move(this.inversePositionVector);
+    this.mesh.move(this.positionVector);
+    this.mesh.move(vec3.fromValues(0, -4, -10));
     this.mesh.render();
 
     console.log(`[CAR] [MVm]`, this.canvas.modelViewMatrix);

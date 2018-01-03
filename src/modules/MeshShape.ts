@@ -2,21 +2,24 @@ import Canvas from './Canvas';
 import { Shader } from './Shader';
 import { mat4, vec3 } from 'gl-matrix';
 import { Layout } from 'webgl-obj-loader';
+import { Body, Vec3 } from 'cannon';
 import Shape from './Shape.interface';
 
 export class MeshShape implements Shape {
-  protected normalBuffer: WebGLBufferD;
-  protected textureBuffer: WebGLBufferD;
-  protected indexBuffer: WebGLBufferD;
-  protected vertexBuffer: WebGLBufferD;
-  protected rotation = 0;
+  private normalBuffer: WebGLBufferD;
+  private textureBuffer: WebGLBufferD;
+  private indexBuffer: WebGLBufferD;
+  private vertexBuffer: WebGLBufferD;
+  private rotation = 0;
 
   constructor(
-    protected canvas: Canvas,
-    protected shader: Shader,
-    protected position: vec3,
-    protected mesh: Mesh,
+    private canvas: Canvas,
+    private shader: Shader,
+    private body: Body,
+    private mesh: Mesh,
   ) {
+    this.canvas.world.addBody(this.body);
+
     this.normalBuffer = this.canvas.webgl.createBuffer();
     this.normalBuffer.numItems = mesh.vertexNormals.length;
     this.normalBuffer.itemSize = 3;
@@ -76,7 +79,7 @@ export class MeshShape implements Shape {
   }
 
   move(vector: vec3): void {
-    this.position = vector;
+    // this.body.position.
   }
 
   render() {
@@ -84,7 +87,10 @@ export class MeshShape implements Shape {
 
     this.canvas.mvPush();
     mat4.rotate(this.canvas.modelViewMatrix, this.canvas.modelViewMatrix, this.rotation, [0, 1, 0]);
-    mat4.translate(this.canvas.modelViewMatrix, this.canvas.modelViewMatrix, this.position);
+    mat4.translate(
+      this.canvas.modelViewMatrix,
+      this.canvas.modelViewMatrix,
+      this.body.position.toArray());
 
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
     this.shader.setVariables();
