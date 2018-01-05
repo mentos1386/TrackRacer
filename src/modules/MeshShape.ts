@@ -77,14 +77,15 @@ export class MeshShape implements Shape {
       this.canvas.webgl.STATIC_DRAW);
   }
 
+  tick() {
+    this.position = vec3.add(vec3.create(), this.position, this.velocity);
+    this.velocity = vec3.fromValues(0, 0, 0);
+  }
 
   render() {
     this.shader.use();
 
     this.canvas.mvPush();
-
-    this.position = vec3.add(vec3.create(), this.position, this.velocity);
-    this.velocity = vec3.fromValues(0, 0, 0);
 
     // Position
     mat4.translate(

@@ -76,7 +76,7 @@ export default class Canvas {
    */
   private setProjection() {
     this.projectionMatrix = mat4.create();
-    mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 100);
+    mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 1000);
   }
 
   /**
