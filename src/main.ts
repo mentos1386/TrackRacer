@@ -17,20 +17,16 @@ import { vec3 } from 'gl-matrix';
 import { MeshShape } from './modules/MeshShape';
 import { Camera } from './modules/Camera';
 import { Layout } from 'webgl-obj-loader';
-import { Body, Vec3, Plane, Trimesh, Box } from 'cannon';
+import { Body, Vec3, Plane, Material, Box, ContactMaterial, Sphere, RigidVehicle } from 'cannon';
 
 export default class Main {
   private canvas: Canvas;
   private camera: Camera;
   private shapes: MeshShape[] = [];
-  private keyDown: string;
 
   constructor() {
     // Create canvas
     this.canvas = new Canvas('gameCanvas');
-
-    window.addEventListener('keydown', ({ key }) => this.keyDown = key);
-    window.addEventListener('keyup', () => this.keyDown = null);
 
     this.init().catch(console.error);
   }
@@ -78,16 +74,17 @@ export default class Main {
         this.shapes.push(new MeshShape(this.canvas, shader, exampleBody2, cubeObj));*/
 
     /**
-     * Camera
+     * Materials
      */
-    const carBody = new Body({
-      mass: 10,
-      position: new Vec3(0, 5, 0),
-      // shape: new Trimesh(volksObj.vertices, volksObj.indices),
-      shape: new Box(new Vec3(1, 1, 1)),
-    });
-    this.camera = new Camera(this.canvas, new MeshShape(this.canvas, shader, carBody, volksObj));
+    const groundMaterial = new Material('groundMaterial');
+    const wheelMaterial = new Material('wheelMaterial');
 
+    const wheelGroundContactMaterial = new ContactMaterial(wheelMaterial, groundMaterial, {
+      friction: 0.3,
+      restitution: 0,
+      contactEquationStiffness: 1000,
+    });
+    this.canvas.world.addContactMaterial(wheelGroundContactMaterial);
 
     /**
      * Ground
@@ -95,9 +92,68 @@ export default class Main {
     const groundBody = new Body({
       mass: 0,
       shape: new Plane(),
+      material: groundMaterial,
     });
+
     groundBody.quaternion.setFromAxisAngle(new Vec3(1, 0, 0), -Math.PI / 2);
     this.shapes.push(new MeshShape(this.canvas, shader, groundBody, worldObj));
+
+    /**
+     * Camera
+     */
+    const centerOfMassAdjust = new Vec3(0, 1, 0);
+    const chassisShape = new Box(new Vec3(5, 0.5, 2));
+    const chassisBody = new Body({
+      mass: 1,
+    });
+    chassisBody.addShape(chassisShape, centerOfMassAdjust);
+    const axisWidth = 7;
+    const wheelShape = new Sphere(1.5);
+    const down = new Vec3(0, -1, 0);
+
+    const vehicle = new RigidVehicle({ chassisBody });
+
+    const wheelBody1 = new Body({ mass: 1, material: wheelMaterial });
+    wheelBody1.addShape(wheelShape);
+    vehicle.addWheel({
+      body: wheelBody1,
+      position: new Vec3(5, axisWidth / 2, 0).vadd(centerOfMassAdjust),
+      axis: new Vec3(1, 0, 0),
+      direction: down,
+    });
+    const wheelBody2 = new Body({ mass: 1, material: wheelMaterial });
+    wheelBody2.addShape(wheelShape);
+    vehicle.addWheel({
+      body: wheelBody2,
+      position: new Vec3(5, -axisWidth / 2, 0).vadd(centerOfMassAdjust),
+      axis: new Vec3(-1, 0, 0),
+      direction: down,
+    });
+    const wheelBody3 = new Body({ mass: 1, material: wheelMaterial });
+    wheelBody3.addShape(wheelShape);
+    vehicle.addWheel({
+      body: wheelBody3,
+      position: new Vec3(-5, axisWidth / 2, 0).vadd(centerOfMassAdjust),
+      axis: new Vec3(1, 0, 0),
+      direction: down,
+    });
+    const wheelBody4 = new Body({ mass: 1, material: wheelMaterial });
+    wheelBody4.addShape(wheelShape);
+    vehicle.addWheel({
+      body: wheelBody4,
+      position: new Vec3(-5, -axisWidth / 2, 0).vadd(centerOfMassAdjust),
+      axis: new Vec3(-1, 0, 0),
+      direction: down,
+    });
+    // Some damping to not spin wheels too fast
+    vehicle.wheelBodies.forEach(wheel => wheel.angularDamping = 0.4);
+
+    this.camera = new Camera(
+      this.canvas,
+      new MeshShape(this.canvas, shader, chassisBody, volksObj),
+      vehicle);
+
+    vehicle.addToWorld(this.canvas.world);
 
     window.requestAnimationFrame(elapsed => this.draw(elapsed));
   }
@@ -112,7 +168,7 @@ export default class Main {
     this.canvas.world.step(1 / 60, elapsed, 3);
 
     // Render camera/car
-    this.camera.render(this.keyDown, elapsed);
+    this.camera.render(elapsed);
 
     // Render other shapes
     this.shapes.forEach(shape => shape.render());
