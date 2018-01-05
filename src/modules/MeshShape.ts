@@ -1,21 +1,20 @@
 import Canvas from './Canvas';
 import { Shader } from './Shader';
-import { mat4, vec3 } from 'gl-matrix';
-import { Layout } from 'webgl-obj-loader';
+import { mat4, quat, vec3 } from 'gl-matrix';
 import { Body, Vec3 } from 'cannon';
 import Shape from './Shape.interface';
+import { degToRad } from '../utils/math';
 
 export class MeshShape implements Shape {
   private normalBuffer: WebGLBufferD;
   private textureBuffer: WebGLBufferD;
   private indexBuffer: WebGLBufferD;
   private vertexBuffer: WebGLBufferD;
-  private rotation = 0;
 
   constructor(
     private canvas: Canvas,
     private shader: Shader,
-    private body: Body,
+    public body: Body,
     private mesh: Mesh,
   ) {
     this.canvas.world.addBody(this.body);
@@ -60,7 +59,6 @@ export class MeshShape implements Shape {
     const vertexData = this.shader.makeVertexBufferData(this.mesh);
     this.vertexBuffer.numItems = vertexData.numItems;
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
-    console.log(vertexData);
     this.canvas.webgl.bufferData(
       this.canvas.webgl.ARRAY_BUFFER,
       vertexData,
@@ -78,19 +76,25 @@ export class MeshShape implements Shape {
       this.canvas.webgl.STATIC_DRAW);
   }
 
-  move(vector: vec3): void {
-    // this.body.position.
-  }
-
   render() {
     this.shader.use();
 
     this.canvas.mvPush();
-    mat4.rotate(this.canvas.modelViewMatrix, this.canvas.modelViewMatrix, this.rotation, [0, 1, 0]);
+
+    // Position
     mat4.translate(
       this.canvas.modelViewMatrix,
       this.canvas.modelViewMatrix,
       this.body.position.toArray());
+
+    // Rotate
+    const [axis, angle] = this.body.quaternion.toAxisAngle();
+    mat4.rotate(
+      this.canvas.modelViewMatrix,
+      this.canvas.modelViewMatrix,
+      degToRad(angle),
+      [axis.x, axis.y, axis.z]);
+
 
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
     this.shader.setVariables();
@@ -107,10 +111,6 @@ export class MeshShape implements Shape {
       0);
 
     this.canvas.mvPop();
-  }
-
-  rotate(degree: number) {
-    this.rotation = degree;
   }
 
 }

@@ -4,3 +4,13 @@ body {
 	padding: 0;
 	margin: 0;
 }
+
+#hud {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+}
+
+#hud p:first-child {
+	margin-top: 0;
+}

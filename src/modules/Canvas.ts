@@ -9,6 +9,7 @@ export default class Canvas {
   public webgl: WebGLRenderingContext;
   public projectionMatrix: mat4;
   public modelViewMatrix: mat4;
+  public viewMatrix: mat4;
   private modelViewMatrixes: mat4[];
 
   constructor(id: string) {
@@ -43,6 +44,11 @@ export default class Canvas {
     this.webgl.clear(this.webgl.COLOR_BUFFER_BIT | this.webgl.DEPTH_BUFFER_BIT);
     this.setProjection();
     this.setModelView();
+    this.setView();
+  }
+
+  public setTextForElement(elementId: string, text: string) {
+    document.getElementById(elementId).innerText = text.toString();
   }
 
   /**
@@ -61,7 +67,7 @@ export default class Canvas {
     this.webgl = this.canvas.getContext('webgl');
 
     this.webgl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    this.webgl.clearColor(0.0, 0.0, 0.0, 1.0);
+    this.webgl.clearColor(0.0, 1.0, 1.0, 1.0);
     this.webgl.clearDepth(1.0);
     this.webgl.enable(this.webgl.DEPTH_TEST);
     this.webgl.depthFunc(this.webgl.LEQUAL);
@@ -75,7 +81,7 @@ export default class Canvas {
    */
   private setProjection() {
     this.projectionMatrix = mat4.create();
-    mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 1000);
+    mat4.perspective(this.projectionMatrix, 45, this.canvas.width / this.canvas.height, 0.1, 100);
   }
 
   /**
@@ -84,5 +90,12 @@ export default class Canvas {
   private setModelView() {
     this.modelViewMatrix = mat4.identity(mat4.create());
     this.modelViewMatrixes = [];
+  }
+
+  /**
+   * Set view matrix
+   */
+  private setView() {
+    this.viewMatrix = mat4.identity(mat4.create());
   }
 }

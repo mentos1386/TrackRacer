@@ -1,9 +1,5 @@
-import { vec3 } from 'gl-matrix';
+import { Vec3 } from 'cannon';
 
 export default interface Shape {
   render(): void;
-
-  rotate(degree: number): void;
-
-  move(vector: vec3): void;
 }

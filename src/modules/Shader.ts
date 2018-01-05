@@ -6,6 +6,7 @@ import { Layout } from 'webgl-obj-loader';
 export class Shader {
   private variables: { [key: string]: number } = {};
   private mvMatrixUniform?: WebGLUniformLocation;
+  private vMatrixUniform?: WebGLUniformLocation;
   private pMatrixUniform?: WebGLUniformLocation;
   private nMatrixUniform?: WebGLUniformLocation;
   private program: WebGLProgram;
@@ -46,13 +47,18 @@ export class Shader {
   }
 
   /**
-   * Set the uniform values in shaders for model-view and projection matrix.
+   * Set the uniform values in shaders for model-view, view and projection matrix.
    */
   public setMatrixUniforms() {
     this.canvas.webgl.uniformMatrix4fv(
       this.pMatrixUniform,
       false,
       this.canvas.projectionMatrix);
+
+    this.canvas.webgl.uniformMatrix4fv(
+      this.vMatrixUniform,
+      false,
+      this.canvas.viewMatrix);
 
     this.canvas.webgl.uniformMatrix4fv(
       this.mvMatrixUniform,
@@ -140,6 +146,11 @@ export class Shader {
     this.pMatrixUniform = this.canvas.webgl.getUniformLocation(
       this.program,
       'uPMatrix');
+
+    // store location of vMatrix variable defined in shader - view matrix
+    this.vMatrixUniform = this.canvas.webgl.getUniformLocation(
+      this.program,
+      'uVMatrix');
 
     // store location of uMVMatrix variable defined in shader - model-view matrix
     this.mvMatrixUniform = this.canvas.webgl.getUniformLocation(

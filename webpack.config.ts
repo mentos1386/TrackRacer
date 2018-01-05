@@ -59,7 +59,7 @@ const config: webpack.Configuration = {
     new webpack.optimize.UglifyJsPlugin({
       test: /\.js($|\?)/i,
       compress: { warnings: false },
-      sourceMap: true,
+      sourceMap: false,
     }),
     new webpack.HotModuleReplacementPlugin(),
   ],
