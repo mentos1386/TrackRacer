@@ -8,17 +8,20 @@ import vertexShader from './shaders/mesh/vertexShader.vs';
 import exampleObj from './objects/example.obj';
 import cubeObj from './objects/cube.obj';
 import worldObj from './objects/world.obj';
-import carObj from './objects/car.obj';
-import car2Obj from './objects/car2.obj';
 import volksObj from './objects/volks.obj';
-import treeObj from './objects/tree.obj';
-import tree2Obj from './objects/tree2.obj';
+
+import treeSmallObj from './objects/treeSmall.obj';
+import treeSmallSnowObj from './objects/treeSmallSnow.obj';
+import treeBigObj from './objects/treeBig.obj';
+import shrubObj from './objects/shrub.obj';
+import trunkObj from './objects/trunk.obj';
 
 import { Shader } from './modules/Shader';
 import { vec3 } from 'gl-matrix';
 import { MeshShape } from './modules/MeshShape';
 import { Camera } from './modules/Camera';
 import { Layout } from 'webgl-obj-loader';
+import { normalizeArray, randomInt } from './utils/math';
 
 export default class Main {
   private canvas: Canvas;
@@ -58,18 +61,42 @@ export default class Main {
      */
     this.shapes.push(new MeshShape(this.canvas, shader, exampleObj, vec3.fromValues(0, 2, 0)));
 
-    /**
-     * Example 2
-     */
-    this.shapes.push(new MeshShape(this.canvas, shader, cubeObj, vec3.fromValues(0, 2, 0)));
 
+    const elements = [
+      {
+        mesh: treeSmallObj,
+        scale: vec3.fromValues(5, 5, 5),
+      },
+      {
+        mesh: treeBigObj,
+        scale: vec3.fromValues(10, 10, 10),
+      },
+      {
+        mesh: shrubObj,
+        scale: vec3.fromValues(2, 2, 2),
+      },
+      {
+        mesh: trunkObj,
+        scale: vec3.fromValues(2, 2, 2),
+      },
+    ];
 
-    this.shapes.push(new MeshShape(
-      this.canvas,
-      shader,
-      tree2Obj,
-      vec3.fromValues(0, 2, 5),
-      true));
+    for (let i = 0; i < 40; i += 1) {
+      const x = randomInt(-100, 100);
+      const z = randomInt(-100, 100);
+
+      const elementIndex = randomInt(0, elements.length - 1);
+      const element = elements[elementIndex];
+
+      this.shapes.push(new MeshShape(
+        this.canvas,
+        shader,
+        element.mesh,
+        vec3.fromValues(x, 0, z),
+        true,
+        element.scale,
+      ));
+    }
 
     /**
      * Ground

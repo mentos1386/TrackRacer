@@ -5,7 +5,8 @@ const fields = [
   'camera',
 ];
 
-export function
-public setTextForElement(elementId: string, text: string) {
-  document.getElementById(elementId).innerText = text.toString();
+export function tic(time: number) {
+  fields.forEach((field) => {
+    document.getElementById(field).innerText = '';
+  });
 }

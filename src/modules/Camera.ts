@@ -4,9 +4,11 @@ import { degToRad } from '../utils/math';
 
 export class Camera {
 
-  private speedFactor = 0.00005;
-  private yawFactor = 0.0005;
-  private pitchFactor = 0.0001;
+  private speedFactor = 0.01;
+  private yawFactor = 0.1;
+  private pitchFactor = 0.1;
+
+  private lastMove = 0;
 
   private x = 0;
   private y = 3;
@@ -22,7 +24,9 @@ export class Camera {
     window.addEventListener('keyup', event => this.keyEvent(event, 'up'));
   }
 
-  public move(elapsed: number) {
+  public move(now: number) {
+    const elapsed = now - this.lastMove;
+    this.lastMove = now;
 
     if (this.speed !== 0) {
       this.x -= Math.sin(degToRad(this.yaw)) * this.speed * elapsed;
@@ -55,10 +59,10 @@ export class Camera {
           break;
         case 32: // Space
           break;
-        case 78: // M
+        case 73: // I
           this.pitchRate = this.pitchFactor;
           break;
-        case 77: // N
+        case 74: // J
           this.pitchRate = -this.pitchFactor;
       }
     }

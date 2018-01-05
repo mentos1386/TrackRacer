@@ -16,6 +16,7 @@ export class MeshShape implements Shape {
     private mesh: Mesh,
     public position: vec3,
     private normalize: boolean = false,
+    private scale: vec3 = vec3.fromValues(1, 1, 1),
     public axis: vec3 = vec3.fromValues(1, 0, 0),
     public angle: number = 0,
   ) {
@@ -95,6 +96,12 @@ export class MeshShape implements Shape {
       this.canvas.modelViewMatrix,
       degToRad(this.angle),
       this.axis);
+
+    mat4.scale(
+      this.canvas.modelViewMatrix,
+      this.canvas.modelViewMatrix,
+      this.scale,
+    );
 
 
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
