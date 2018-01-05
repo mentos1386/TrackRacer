@@ -2,7 +2,7 @@ import Canvas from './Canvas';
 import { Shader } from './Shader';
 import { mat4, quat, vec3 } from 'gl-matrix';
 import Shape from './Shape.interface';
-import { degToRad } from '../utils/math';
+import { degToRad, normalizeArray } from '../utils/math';
 
 export class MeshShape implements Shape {
   private normalBuffer: WebGLBufferD;
@@ -15,9 +15,11 @@ export class MeshShape implements Shape {
     private shader: Shader,
     private mesh: Mesh,
     public position: vec3,
+    private normalize: boolean = false,
     public axis: vec3 = vec3.fromValues(1, 0, 0),
     public angle: number = 0,
   ) {
+    if (this.normalize) this.mesh.vertices = normalizeArray(this.mesh.vertices);
 
     this.normalBuffer = this.canvas.webgl.createBuffer();
     this.normalBuffer.numItems = mesh.vertexNormals.length;

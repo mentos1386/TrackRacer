@@ -11,6 +11,8 @@ import worldObj from './objects/world.obj';
 import carObj from './objects/car.obj';
 import car2Obj from './objects/car2.obj';
 import volksObj from './objects/volks.obj';
+import treeObj from './objects/tree.obj';
+import tree2Obj from './objects/tree2.obj';
 
 import { Shader } from './modules/Shader';
 import { vec3 } from 'gl-matrix';
@@ -61,6 +63,14 @@ export default class Main {
      */
     this.shapes.push(new MeshShape(this.canvas, shader, cubeObj, vec3.fromValues(0, 2, 0)));
 
+
+    this.shapes.push(new MeshShape(
+      this.canvas,
+      shader,
+      tree2Obj,
+      vec3.fromValues(0, 2, 5),
+      true));
+
     /**
      * Ground
      */
@@ -77,7 +87,7 @@ export default class Main {
     // Clear
     this.canvas.clear();
 
-      // Render camera/car
+    // Render camera/car
     this.camera.move(elapsed);
 
     // Render other shapes
