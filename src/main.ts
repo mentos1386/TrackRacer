@@ -74,7 +74,7 @@ export default class Main {
     /**
      * Ground
      */
-    this.shapes.push(new MeshShape(this.canvas, shader, worldObj, vec3.fromValues(0, 2, 0)));
+    this.shapes.push(new MeshShape(this.canvas, shader, worldObj, vec3.fromValues(0, 0, 0)));
 
     this.camera = new Camera(this.canvas);
 

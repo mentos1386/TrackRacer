@@ -45,10 +45,6 @@ export default class Canvas {
     this.setView();
   }
 
-  public setTextForElement(elementId: string, text: string) {
-    document.getElementById(elementId).innerText = text.toString();
-  }
-
   /**
    * Prepare world
    */

@@ -4,8 +4,12 @@ import { degToRad } from '../utils/math';
 
 export class Camera {
 
+  private speedFactor = 0.00005;
+  private yawFactor = 0.0005;
+  private pitchFactor = 0.0001;
+
   private x = 0;
-  private y = 0;
+  private y = 3;
   private z = 0;
   private speed = 0;
   private yaw = 0;
@@ -34,27 +38,35 @@ export class Camera {
   }
 
   private keyEvent(event: KeyboardEvent, direction: 'up' | 'down') {
-    event.preventDefault();
-    switch (event.keyCode) {
-      case 87: // W
-        this.speed = 0.003;
-        break;
-      case 83: // S
-        this.speed = -0.003;
-        break;
-      case 68: // D
-        this.yawRate = -0.1;
-        break;
-      case 65: // A
-        this.yawRate = 0.1;
-        break;
-      case 32: // Space
-        break;
-      case 78: // M
-        this.pitchRate = 0.08;
-        break;
-      case 77: // N
-        this.pitchRate = -0.08;
+
+    if (direction === 'down') {
+      switch (event.keyCode) {
+        case 87: // W
+          this.speed = this.speedFactor;
+          break;
+        case 83: // S
+          this.speed = -this.speedFactor;
+          break;
+        case 68: // D
+          this.yawRate = -this.yawFactor;
+          break;
+        case 65: // A
+          this.yawRate = this.yawFactor;
+          break;
+        case 32: // Space
+          break;
+        case 78: // M
+          this.pitchRate = this.pitchFactor;
+          break;
+        case 77: // N
+          this.pitchRate = -this.pitchFactor;
+      }
+    }
+
+    if (direction === 'up') {
+      this.speed = 0;
+      this.yawRate = 0;
+      this.pitchRate = 0;
     }
   }
 
