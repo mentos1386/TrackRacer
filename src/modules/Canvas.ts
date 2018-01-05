@@ -1,10 +1,8 @@
 import { mat4 } from 'gl-matrix';
-import { World, NaiveBroadphase } from 'cannon';
 import { degToRad } from '../utils/math';
 
 export default class Canvas {
   public readonly CANVAS_ID: string;
-  public world: World;
   public canvas: HTMLCanvasElement;
   public webgl: WebGLRenderingContext;
   public projectionMatrix: mat4;
@@ -55,10 +53,6 @@ export default class Canvas {
    * Prepare world
    */
   private initWorld() {
-    this.world = new World();
-    this.world.gravity.set(0, -9.82, 0);
-    this.world.defaultContactMaterial.friction = 0.2;
-    this.world.broadphase = new NaiveBroadphase();
   }
 
   /**

@@ -1,7 +1,6 @@
 import Canvas from './Canvas';
 import { Shader } from './Shader';
 import { mat4, quat, vec3 } from 'gl-matrix';
-import { Body, Vec3 } from 'cannon';
 import Shape from './Shape.interface';
 import { degToRad } from '../utils/math';
 
@@ -14,10 +13,12 @@ export class MeshShape implements Shape {
   constructor(
     private canvas: Canvas,
     private shader: Shader,
-    public body: Body,
     private mesh: Mesh,
+    public position: vec3,
+    public axis: vec3 = vec3.fromValues(1, 0, 0),
+    public angle: number = 0,
+    public velocity: vec3 = vec3.fromValues(0, 0, 0),
   ) {
-    this.canvas.world.addBody(this.body);
 
     this.normalBuffer = this.canvas.webgl.createBuffer();
     this.normalBuffer.numItems = mesh.vertexNormals.length;
@@ -76,24 +77,27 @@ export class MeshShape implements Shape {
       this.canvas.webgl.STATIC_DRAW);
   }
 
+
   render() {
     this.shader.use();
 
     this.canvas.mvPush();
 
+    this.position = vec3.add(vec3.create(), this.position, this.velocity);
+    this.velocity = vec3.fromValues(0, 0, 0);
+
     // Position
     mat4.translate(
       this.canvas.modelViewMatrix,
       this.canvas.modelViewMatrix,
-      this.body.position.toArray());
+      this.position);
 
     // Rotate
-    const [axis, angle] = this.body.quaternion.toAxisAngle();
     mat4.rotate(
       this.canvas.modelViewMatrix,
       this.canvas.modelViewMatrix,
-      degToRad(angle),
-      [axis.x, axis.y, axis.z]);
+      degToRad(this.angle),
+      this.axis);
 
 
     this.canvas.webgl.bindBuffer(this.canvas.webgl.ARRAY_BUFFER, this.vertexBuffer);
