@@ -17,7 +17,6 @@ export class MeshShape implements Shape {
     public position: vec3,
     public axis: vec3 = vec3.fromValues(1, 0, 0),
     public angle: number = 0,
-    public velocity: vec3 = vec3.fromValues(0, 0, 0),
   ) {
 
     this.normalBuffer = this.canvas.webgl.createBuffer();
@@ -75,11 +74,6 @@ export class MeshShape implements Shape {
       this.canvas.webgl.ELEMENT_ARRAY_BUFFER,
       indexData,
       this.canvas.webgl.STATIC_DRAW);
-  }
-
-  tick() {
-    this.position = vec3.add(vec3.create(), this.position, this.velocity);
-    this.velocity = vec3.fromValues(0, 0, 0);
   }
 
   render() {

@@ -66,9 +66,7 @@ export default class Main {
      */
     this.shapes.push(new MeshShape(this.canvas, shader, worldObj, vec3.fromValues(0, 2, 0)));
 
-    this.camera = new Camera(
-      this.canvas,
-      new MeshShape(this.canvas, shader, volksObj, vec3.fromValues(0, 2, 0)));
+    this.camera = new Camera(this.canvas);
 
     window.requestAnimationFrame(elapsed => this.draw(elapsed));
   }
@@ -80,7 +78,7 @@ export default class Main {
     this.canvas.clear();
 
       // Render camera/car
-    this.camera.render(elapsed);
+    this.camera.move(elapsed);
 
     // Render other shapes
     this.shapes.forEach(shape => shape.render());
