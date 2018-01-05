@@ -1,19 +1,17 @@
 import Canvas from './Canvas';
 import { mat4, vec3 } from 'gl-matrix';
-import { degToRad } from '../utils/math';
+import { degToRad } from '../utils/misc';
 
 export class Camera {
 
-  private speedFactor = 0.01;
+  public x = 0;
+  public y = 3;
+  public z = 0;
+  public speed = 0;
+  private speedFactor = 0.015;
   private yawFactor = 0.1;
   private pitchFactor = 0.1;
-
   private lastMove = 0;
-
-  private x = 0;
-  private y = 3;
-  private z = 0;
-  private speed = 0;
   private yaw = 0;
   private pitch = 0;
   private yawRate = 0;

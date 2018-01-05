@@ -1,5 +1,5 @@
 import { mat4 } from 'gl-matrix';
-import { degToRad } from '../utils/math';
+import { degToRad } from '../utils/misc';
 
 export default class Canvas {
   public readonly CANVAS_ID: string;

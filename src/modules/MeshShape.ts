@@ -2,7 +2,7 @@ import Canvas from './Canvas';
 import { Shader } from './Shader';
 import { mat4, quat, vec3 } from 'gl-matrix';
 import Shape from './Shape.interface';
-import { degToRad, normalizeArray } from '../utils/math';
+import { degToRad, normalizeArray } from '../utils/misc';
 
 export class MeshShape implements Shape {
   private normalBuffer: WebGLBufferD;
@@ -77,6 +77,11 @@ export class MeshShape implements Shape {
       this.canvas.webgl.ELEMENT_ARRAY_BUFFER,
       indexData,
       this.canvas.webgl.STATIC_DRAW);
+  }
+
+  detHit(x: number, z: number) {
+    return x <= this.position[0] + 0.1 && x >= this.position[0] - 0.1 ||
+      z <= this.position[2] + 0.1 && z >= this.position[2] - 0.1;
   }
 
   render() {
