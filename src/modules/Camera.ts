@@ -50,25 +50,43 @@ export class Camera {
           this.speed = -this.speedFactor;
           break;
         case 68: // D
-          this.yawRate = -this.yawFactor;
+          this.yawRate -= this.yawFactor;
           break;
         case 65: // A
-          this.yawRate = this.yawFactor;
+          this.yawRate += this.yawFactor;
           break;
         case 32: // Space
           break;
         case 73: // I
-          this.pitchRate = this.pitchFactor;
+          this.pitchRate += this.pitchFactor;
           break;
         case 74: // J
-          this.pitchRate = -this.pitchFactor;
+          this.pitchRate -= this.pitchFactor;
       }
     }
 
     if (direction === 'up') {
-      this.speed = 0;
-      this.yawRate = 0;
-      this.pitchRate = 0;
+      switch (event.keyCode) {
+        case 87: // W
+          this.speed = 0;
+          break;
+        case 83: // S
+          this.speed = 0;
+          break;
+        case 68: // D
+          this.yawRate += this.yawFactor;
+          break;
+        case 65: // A
+          this.yawRate -= this.yawFactor;
+          break;
+        case 32: // Space
+          break;
+        case 73: // I
+          this.pitchRate -= this.pitchFactor;
+          break;
+        case 74: // J
+          this.pitchRate += this.pitchFactor;
+      }
     }
   }
 
